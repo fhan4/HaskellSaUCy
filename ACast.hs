@@ -1049,7 +1049,6 @@ simACastBroken variantT variantR variantD (z2a, a2z) (p2a, a2p) (f2a, a2f) = do
       (Left (ClockF2A_Advance)) -> do
         printAdv $ "adversary delays advance"
         writeIORef sendAdvance True
-        writeChan sbxz2f ClockZ2F_MakeProgress
         writeChan a2f (Left (ClockA2F_Delay 1))
       (Left (ClockF2A_Pass)) -> do
         adv <- readIORef sendAdvance
@@ -1057,9 +1056,10 @@ simACastBroken variantT variantR variantD (z2a, a2z) (p2a, a2p) (f2a, a2f) = do
         if ini then
           writeIORef initDelay False
         else do
-          if adv then
+          if adv then do
             -- Suppress results from the simulator's extra delay
             writeIORef sendAdvance False
+            writeChan sbxz2f ClockZ2F_MakeProgress
           else
             writeChan a2z $ SttCruptA2Z_F2A (Left (ClockF2A_Pass))
 
